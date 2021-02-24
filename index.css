@@ -1,0 +1,71 @@
+:root{
+  --text-color: rgb(52, 54, 51);
+  --font-color: #b9d1f2;
+  --heading-color: #f5f2e8;
+  --emphasis-color: #f2a278;
+  --bubble-color: #1FFFDA;
+  --bg-color: #153956;
+  --dark-bg-color: #002e4d;
+  --button-color: #5497A7;
+  
+  --card-width:  clamp(200px, 80vw, 600px - 2rem);
+  --card-height: calc(var(--card-width) * 1.25);
+
+
+}
+
+body{
+	background: var(--bg-color)
+}
+
+
+
+
+.container{
+	margin: 0 auto;
+	display: flex;
+	background: ;
+	width: 80%;
+	height: 80vh;
+	max-width: 940px;
+	box-sizing: border-box;
+	align-items: center;
+	justify-content: center;
+}
+
+
+
+.viewport{
+	display: flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	width: 80%;
+	height: 80%;
+	background: var(--bg-color);
+}
+
+.slide{
+	display: flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	width: 80%;
+	height: 80%;
+	background: var(--bg-color);
+}
+
+.card-wrapper{
+	display: flex;
+	min-width: 100%;
+
+	align-items: center;
+	justify-content: center;
+}
+
+.card{
+	border-radius: 1rem;
+	background: brown;
+	width: 80%;
+	height: 80%
+}
+
+
