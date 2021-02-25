@@ -62,16 +62,12 @@ let totalCards = document.querySelectorAll('card-wrapper')
 let mainIndex = 1;
 let allElements = document.querySelectorAll('.card-wrapper')
 
-let inView = shiftCardsLeft(mainIndex, cardIndexArray)
-
-console.log(allElements[inView[1]])
-
 
 let heldDown = false
 let startX;
 let prev
 let currentX;
-let previous;
+let previous = 0;
 let posX = 0
 
 let timeDown;
@@ -79,14 +75,14 @@ let timeUp;
 let difTime;
 
 let card = document.getElementById(mainIndex)
-console.log(card)
+
 
 const mouseDownListener = (event) => {
 	event.preventDefault();
 	startX = event.clientX
 	
 	heldDown = true
-	timeDown = new Date()
+
 	
 	
 }
@@ -97,57 +93,53 @@ const mouseUpListener = (event) => {
 	event.preventDefault();
 	currentX = event.clientX
 	heldDown = false
-	timeUp = new Date()
-	difTime = timeDown.getTime()  - timeUp.getTime()
-	console.log(difTime)
-	resetPosition(difTime,startX, currentX)
+  
+
+
+	resetPosition(posX)
 }
 
 document.addEventListener('mouseup', mouseUpListener)
 
+
+const calcXDistance = (previous, current) => {
+  return (current - previous)
+}
+
+
 const mouseMoveListener = (event) => {
 	event.preventDefault();
-	let move;
 	previous = previous ? previous : startX 
-	let current = event.clientX
-	
-	if(current - previous > 0){
-		move = 'right'
-	}
-	else{
-		move = 'left'
-	}
+	let distance = event.clientX - previous
+	let move = distance > 0 ? 'right': 'left'
+
 
 	if(heldDown) {
-		posX = posX + (current - previous)
+		posX = posX + (distance)
 		
 		let cardWidth = allElements[0].offsetWidth
-		console.log(posX)
+
 		if(move === 'left'){
 			
-			if(posX < (-cardWidth * mainIndex) + cardWidth / 2){
+			if(posX < (-cardWidth * mainIndex) + (cardWidth * 0.75)){
 				mainIndex++
-				console.log(cardWidth)
-				console.log('mainIndex',mainIndex)
-				console.log('posX',posX)
+
 				
 				if(mainIndex > allElements.length){
 					mainIndex--
-					posX = (-cardWidth * mainIndex) + cardWidth /2
+					posX = (-cardWidth * mainIndex) + (cardWidth * 0.75)
 				}
 				
 			}			
 		}
 		else if (move === 'right'){
-		console.log(posX)
-			if(posX > (-cardWidth * (mainIndex -1)) + cardWidth / 2){
+	
+			if(posX > (-cardWidth * (mainIndex -1)) + ( cardWidth * 0.25)){
 				mainIndex--
-				console.log('mainIndex lefts',mainIndex)
-				console.log('posX',posX)
-				
+
 				if(mainIndex < 1){
 					mainIndex++
-					posX = cardWidth / 2
+					posX = (-cardWidth * (mainIndex -1)) + ( cardWidth * 0.25)
 				}
 				
 			}			
@@ -169,33 +161,34 @@ const mouseMoveListener = (event) => {
 		
 	}
 	
-	previous = current;
+	previous = event.clientX;
 }
 
 cards.addEventListener('mousemove', mouseMoveListener)
 
 
 
-const resetPosition = (time, beginning, end) => {
-	console.log((end - beginning)/time,'px/s')
 
+
+
+const resetPosition = (currentPosition) => {
+
+  let endPos = currentPosition
 	const k = 0.1
-	let resetPos = (mainIndex - 1) * allElements[0].offsetWidth
+	const resetPos = (mainIndex - 1) * allElements[0].offsetWidth
 	let dX = k  * (resetPos + posX)
 	
 	var move = function() {
 		
-		posX -= dX
-		dX = k * (resetPos + posX)
+		endPos -= dX
+		dX = k * (resetPos + endPos)
 		for(let i = 0; i < allElements.length; i++){
 			let card = allElements[i]
-			let cardWidth = card.offsetWidth
-			let offsetX = (i - mainIndex) * cardWidth
-		card.style.transform = `translateX(${posX}px)`
+		card.style.transform = `translateX(${endPos}px)`
 		
-		if(posX < -resetPos + 11 && posX >  -resetPos -11){
-			for(let i = 0; i < inView.length; i++){
-				let card = allElements[inView[i]]
+		if(endPos < -resetPos + 5 && endPos >  -resetPos -5){
+			for(let i = 0; i < allElements.length; i++){
+				let card = allElements[i]
 			card.style.transform = `translateX(${-resetPos}px)`
 			}
 			posX = -resetPos
@@ -210,4 +203,19 @@ const resetPosition = (time, beginning, end) => {
 	
 }
 
+const centerViewport = () => {
+  posX = -allElements[0].offsetWidth * (mainIndex - 1
+)
+  for(let i = 0; i < allElements.length; i++){
+    let card = allElements[i]
+  
+    
+    
+    card.style.transform = `translateX(${posX}px)`
+  
+      
+  }
+}
 
+
+window.onresize = centerViewport
