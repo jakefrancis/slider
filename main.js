@@ -65,8 +65,8 @@ const buildSlider = (id) => {
   //stores the intial value of a touch event or mouse click
   let startX;
 
-  //the slider that is in view, the first index is one, the math was easier that way.
-  let childIndexInView = 1;
+  //the slide that is in view, the first index is one, the math was easier that way.
+  let slideInView = 1;
 
   //Is the slider begin clicked or touched
   let heldDown = false
@@ -76,6 +76,8 @@ const buildSlider = (id) => {
 
   //the x postition of the slides at the center of the slidewindow in relation to the translation of the x position
   let posX = 0
+  //
+  let cardWidth = sliderChildren[0].offsetWidth
 
 
 
@@ -105,17 +107,10 @@ document.addEventListener('mouseup', mouseUpListener)
 const mouseMoveListener = (event) => {
 	event.preventDefault();
   //the distance traveled since last mouseMove event trigger
-	let distance = event.clientX - previous
-
-  //direction the mouse was moved
-
+	let distance = event.clientX - previous 
   if(heldDown) {
     moveSlide(distance)
-  }
-
-
-
-	
+  }	
 	previous = event.clientX;
 }
 
@@ -124,78 +119,74 @@ cards.addEventListener('mousemove', mouseMoveListener)
 const moveSlide = (distance) => {
 
   
-
+    //direction the mouse was moved
     let direction = distance > 0 ? 'right': 'left'
-    //needs to be own function
-		posX = posX + (distance)
-		
-		let cardWidth = sliderChildren[0].offsetWidth
-
-		if(direction === 'left'){
-			
-			if(posX < (-cardWidth * childIndexInView) + (cardWidth * 0.75)){
-				childIndexInView++
-
-				
-				if(childIndexInView > sliderChildren.length){
-					childIndexInView--
-					posX = (-cardWidth * childIndexInView) + (cardWidth * 0.75)
+    
+    //change posX by the distance mouse/touch has moved
+		posX = posX + (distance)		
+  
+		if(direction === 'left'){		
+    //if the slide has moved 25% of its width, then change the index of the slide that is inview to the next slide
+			if(posX < (-cardWidth * slideInView) + (cardWidth * 0.75)){
+				slideInView++
+        //prevent moving to a slide that doesn't exist
+				if(slideInView > sliderChildren.length){
+					slideInView--
+					posX = (-cardWidth * slideInView) + (cardWidth * 0.75)
 				}
 				
 			}			
 		}
 		else if (direction === 'right'){
-	
-			if(posX > (-cardWidth * (childIndexInView - 1)) + ( cardWidth * 0.25)){
-  
-				childIndexInView--
-
-				if(childIndexInView < 1){
-					childIndexInView++
-					posX = (-cardWidth * (childIndexInView - 1)) + ( cardWidth * 0.25)
-				}
-				
+      //same as above but opposite
+			if(posX > (-cardWidth * (slideInView - 1)) + ( cardWidth * 0.25)){
+        slideInView--
+        //prevent moving to a slide that doesn't exist
+				if(slideInView < 1){
+					slideInView++
+					posX = (-cardWidth * (slideInView - 1)) + ( cardWidth * 0.25)
+				}				
 			}			
-		}
+		}				
 		
-			
-		
+    //moves all the slides based on the distance the mouse/touch has moved
 		for(let i = 0; i < sliderChildren.length; i++){
-			let card = sliderChildren[i]			
-		
-			
-			
-			card.style.transform = `translateX(${posX}px)`
-		
-				
-		}
-		
-		
-		
+			let card = sliderChildren[i]	
+			card.style.transform = `translateX(${posX}px)`				
+		}		
 	}
 
-
-
-
-
-
-
-
 const resetPosition = (currentPosition) => {
-
+  //posX
   let endPos = currentPosition
+  /* Hooke's law: The force needed to compress or expand a spring
+    F = kx
+
+    where F is force generate
+    k is the spring constant (positive real number)
+    x is the distance from the springs point of equilibrium
+    
+  */
+  
+  //spring constant
 	const k = 0.1
-	const resetPos = (childIndexInView - 1) * sliderChildren[0].offsetWidth
+  //equilbrium point
+	const resetPos = (slideInView - 1) * sliderChildren[0].offsetWidth
+  //velocity generated
 	let dX = k  * (resetPos + posX)
 	
-	var direction = function() {
+  //var is used in order to recursively call request animation frame
+	var moveToEquilibrium = function() {
 		
+    //move the slide towards the equilibrium by the velocity generated
 		endPos -= dX
+    //recalculate velocity based on the slides new position
 		dX = k * (resetPos + endPos)
+    //visually move the slides
 		for(let i = 0; i < sliderChildren.length; i++){
 			let card = sliderChildren[i]
 		card.style.transform = `translateX(${endPos}px)`
-		
+		//if the spring has reached the equilibrium point stop
 		if(endPos < -resetPos + 2 && endPos >  -resetPos - 2){
 			for(let i = 0; i < sliderChildren.length; i++){
 				let card = sliderChildren[i]
@@ -204,32 +195,22 @@ const resetPosition = (currentPosition) => {
 			posX = -resetPos
 			return 
 		}
-		}
-		
-		
-		window.requestAnimationFrame(direction)
+		}		
+		window.requestAnimationFrame(moveToEquilibrium)
 }
-	window.requestAnimationFrame(direction)
-	
+	window.requestAnimationFrame(moveToEquilibrium)	
 }
 
+//move the slides to the center of the viewport on window resize
 const centerViewport = () => {
-  posX = -sliderChildren[0].offsetWidth * (childIndexInView - 1
+  posX = -sliderChildren[0].offsetWidth * (slideInView - 1
 )
   for(let i = 0; i < sliderChildren.length; i++){
-    let card = sliderChildren[i] 
-    
-    
-    card.style.transform = `translateX(${posX}px)`
-  
-      
+    let card = sliderChildren[i]    
+    card.style.transform = `translateX(${posX}px)`      
   }
 }
-
-
-window.onresize = centerViewport
-
-  
+window.onresize = centerViewport  
 }
 
 
