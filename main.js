@@ -6,7 +6,7 @@ let cards = document.getElementById('viewport')
 
 
 
-let cardNumber = 50
+let cardNumber = 4
 
 let arrayOfNumbersFromNumber = (numberOfIndexes) =>{
 	let arr = []
@@ -61,6 +61,7 @@ const buildSlider = (id) => {
   const slider = document.getElementById(String(id))
 
   const sliderChildren = slider.children
+  console.log(sliderChildren)
 
   //stores the intial value of a touch event or mouse click
   let startX;
