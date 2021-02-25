@@ -2,6 +2,10 @@ let cards = document.getElementById('viewport')
 
 
 
+
+
+
+
 let cardNumber = 4
 
 let arrayOfNumbersFromNumber = (numberOfIndexes) =>{
@@ -50,17 +54,24 @@ for(let i = 0; i < cardNumber; i++){
 	cardWrapper.appendChild(card)
 	cards.appendChild(cardWrapper)
 }
-let cardWrappers = document.querySelectorAll('.card-wrapper')
 
 
-let totalCards = document.querySelectorAll('card-wrapper')
+const buildSlider = (id) => {
+  const slider = document.getElementById(String(id))
+
+  const sliderChildren = slider.children;
+
+  
+}
 
 
 
 
 
 let mainIndex = 1;
-let allElements = document.querySelectorAll('.card-wrapper')
+
+
+let allElements = cards.children
 
 
 let heldDown = false
@@ -101,9 +112,29 @@ const mouseUpListener = (event) => {
 
 document.addEventListener('mouseup', mouseUpListener)
 
+const changeViewIndex = (direction, indexInView ,slideWidth,) => {
 
-const calcXDistance = (previous, current) => {
-  return (current - previous)
+}
+
+const moveSlides = (direction,distance,viewPosition) => {
+
+ let changeX = viewDistance + distance
+
+ if(direction === 'right'){
+  if (move === 'right'){
+	
+    if(posX > (-cardWidth * (mainIndex)) + ( cardWidth * 0.25)){
+      mainIndex--
+
+      if(mainIndex < 0){
+        mainIndex++
+        posX = (-cardWidth * (mainIndex)) + ( cardWidth * 0.25)
+      }
+      
+    }			
+  }
+ }
+  
 }
 
 
@@ -186,7 +217,7 @@ const resetPosition = (currentPosition) => {
 			let card = allElements[i]
 		card.style.transform = `translateX(${endPos}px)`
 		
-		if(endPos < -resetPos + 5 && endPos >  -resetPos -5){
+		if(endPos < -resetPos + 2 && endPos >  -resetPos - 2){
 			for(let i = 0; i < allElements.length; i++){
 				let card = allElements[i]
 			card.style.transform = `translateX(${-resetPos}px)`
@@ -207,8 +238,7 @@ const centerViewport = () => {
   posX = -allElements[0].offsetWidth * (mainIndex - 1
 )
   for(let i = 0; i < allElements.length; i++){
-    let card = allElements[i]
-  
+    let card = allElements[i] 
     
     
     card.style.transform = `translateX(${posX}px)`
