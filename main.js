@@ -56,12 +56,17 @@ for(let i = 0; i < cardNumber; i++){
 }
 
 
+
+
+
+
 const buildSlider = (id) => {
   
   const slider = document.getElementById(String(id))
-
+  
   const sliderChildren = slider.children
-  console.log(sliderChildren)
+
+
 
   //stores the intial value of a touch event or mouse click
   let startX;
@@ -73,49 +78,69 @@ const buildSlider = (id) => {
   let heldDown = false
 
   //previous x position, establishes if the user is swiping right or left
-  let previous = 0;
+  let previous = null;
 
   //the x postition of the slides at the center of the slidewindow in relation to the translation of the x position
   let posX = 0
   //
   let cardWidth = sliderChildren[0].offsetWidth
 
+  let xDown = null;
+
 
 
   const mouseDownListener = (event) => {
-	  event.preventDefault();
+    event.preventDefault()
     //record inital X position of the mouse
-	  startX = event.clientX
+	 startX = event.clientX ? event.clientX : event.touches[0].clientX
+
     //mouse is being clicked	
 	  heldDown = true	
   }
 
-  cards.addEventListener('mousedown', mouseDownListener)
+
+
+
+
+  slider.addEventListener('mousedown', mouseDownListener)
 
   
   
   const mouseUpListener = (event) => {
-	  event.preventDefault();
+    
     //no longer clicking
 	  heldDown = false 
     //resets slide to it's center at the center of the slide window
 	  resetPosition(posX)
+    previous = null
   }
 
 document.addEventListener('mouseup', mouseUpListener)
+slider.addEventListener('touchend', mouseUpListener)
 
 
 const mouseMoveListener = (event) => {
-	event.preventDefault();
+  event.preventDefault()
   //the distance traveled since last mouseMove event trigger
-	let distance = event.clientX - previous 
+  let current = event.clientX ? event.clientX : event.touches[0].clientX
+  previous = previous === null ?  startX: previous;
+
+
+  let distance = current - previous 
+
   if(heldDown) {
     moveSlide(distance)
   }	
-	previous = event.clientX;
+	previous = current
 }
 
-cards.addEventListener('mousemove', mouseMoveListener)
+slider.addEventListener('mousemove', mouseMoveListener)
+//slider.addEventListener('touchmove', mouseMoveListener)
+
+for(let child of sliderChildren){
+    child.firstChild.addEventListener('touchmove', mouseMoveListener)
+    child.firstChild.addEventListener('touchstart', mouseDownListener)
+}
 
 const moveSlide = (distance) => {
 
@@ -128,24 +153,24 @@ const moveSlide = (distance) => {
   
 		if(direction === 'left'){		
     //if the slide has moved 25% of its width, then change the index of the slide that is inview to the next slide
-			if(posX < (-cardWidth * slideInView) + (cardWidth * 0.75)){
+			if(posX < (-cardWidth * slideInView) + (cardWidth * 0.90)){
 				slideInView++
         //prevent moving to a slide that doesn't exist
 				if(slideInView > sliderChildren.length){
 					slideInView--
-					posX = (-cardWidth * slideInView) + (cardWidth * 0.75)
+					posX = (-cardWidth * slideInView) + (cardWidth * 0.90)
 				}
 				
 			}			
 		}
 		else if (direction === 'right'){
       //same as above but opposite
-			if(posX > (-cardWidth * (slideInView - 1)) + ( cardWidth * 0.25)){
+			if(posX > (-cardWidth * (slideInView - 1)) + ( cardWidth * 0.10)){
         slideInView--
         //prevent moving to a slide that doesn't exist
 				if(slideInView < 1){
 					slideInView++
-					posX = (-cardWidth * (slideInView - 1)) + ( cardWidth * 0.25)
+					posX = (-cardWidth * (slideInView - 1)) + ( cardWidth * 0.10)
 				}				
 			}			
 		}				
@@ -203,7 +228,10 @@ const resetPosition = (currentPosition) => {
 }
 
 //move the slides to the center of the viewport on window resize
+
+//this needs to be extracted at some point
 const centerViewport = () => {
+  console.log('slider')
   posX = -sliderChildren[0].offsetWidth * (slideInView - 1
 )
   for(let i = 0; i < sliderChildren.length; i++){
@@ -211,6 +239,7 @@ const centerViewport = () => {
     card.style.transform = `translateX(${posX}px)`      
   }
 }
+
 window.onresize = centerViewport  
 }
 
