@@ -21,3 +21,5 @@ Page indicators are automatically added below the parent container.
 When a slide moves past 10% of its width it will automatically move to the next slide depending on the direction it was moved. 
 The slide will snap or "spring" back to it's center most point when it has been released. The movement is calculated using [Hooke's Law](https://en.wikipedia.org/wiki/Hooke%27s_law)
 for spring forces.
+
+[Live Demo](https://jake-slider.netlify.app)
