@@ -1,7 +1,7 @@
 
 ### Slider
 
-A simple mouse and touch based slider built with `javascript`. 
+A mouse and touch based slider built with `javascript`. 
 
 ##### Usage
 
