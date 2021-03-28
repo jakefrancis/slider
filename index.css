@@ -24,7 +24,7 @@ body{
 .container{
 	margin: 0 auto;
 	display: flex;
-	background: ;
+  flex-direction: column;
 	width: 80%;
 	height: 80vh;
 	max-width: 940px;
@@ -77,10 +77,26 @@ body{
 }
 
 .card{
+  text-align: center;
 	border-radius: 1rem;
 	background: brown;
 	width: 80%;
 	height: 80%
 }
 
+.indicator-wrapper{
+  padding-top: 1rem ;
+  justify-content: center;
+  align-items: center;
+}
+
+.page-indicator{
+  cursor: pointer;
+  height: 2rem;
+  filter: invert(1)
+}
+
+.inview{
+  filter: invert(0)
+}
 

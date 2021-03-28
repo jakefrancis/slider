@@ -3,10 +3,11 @@ let cards = document.getElementById('viewport')
 
 
 
+const randomFromRange = (min, max) => {
+  return Math.floor((Math.random() * (max - min)) + min)
+}
 
-
-
-let cardNumber = 4
+let cardNumber = randomFromRange(5,15)
 
 let arrayOfNumbersFromNumber = (numberOfIndexes) =>{
 	let arr = []
@@ -22,33 +23,14 @@ let cardIndexArray = arrayOfNumbersFromNumber(cardNumber)
 for(let i = 0; i < cardNumber; i++){
 	
 	let cardWrapper = document.createElement('div')
-	if(i === 0){
-		cardWrapper.className = 'card-wrapper'
-		
-	}
-	else{
-		cardWrapper.className = 'card-wrapper'
-	}
+  cardWrapper.className = 'card-wrapper'
+  cardWrapper.className = 'card-wrapper'
+  cardWrapper.setAttribute('id', `${i}`)
 	
-	cardWrapper.setAttribute('id', `${i}`)
-	let card = document.createElement('div')
-	
-	switch(i){
-		case 1:
-			card.className='card'
-			card.style.background = 'pink'
-			break;
-		case 0:
-			card.className='card'
-			card.style.background = 'blue'
-			break;
-		case 2:
-			card.className='card'
-			card.style.background = 'grey'
-			break;
-		default:
-			card.className='card'
-	}
+  let card = document.createElement('div')
+  
+  card.className='card'
+	card.style.background = `rgb(${randomFromRange(0,255)},${randomFromRange(0,255)},${randomFromRange(0,255)})`
   card.textContent = `Slide:${i + 1}`
 	
 	cardWrapper.appendChild(card)
@@ -60,12 +42,48 @@ for(let i = 0; i < cardNumber; i++){
 
 
 
+
+
+
+
 const buildSlider = (id) => {
+
   
   const slider = document.getElementById(String(id))
+
+  const sliderParent = slider.parentNode
+  
   
   const sliderChildren = slider.children
 
+//add svg images below viewport
+  const indicatorWrapper = document.createElement('div')
+  indicatorWrapper.className = 'indicator-wrapper'
+for(let i = 0; i < sliderChildren.length; i++){
+    let pageIndicator = document.createElement('img')
+     pageIndicator.src = 'images/icons/pageIndicator.svg'
+     if(i === 0){
+      pageIndicator.className = 'page-indicator inview'
+      pageIndicator.setAttribute('id', `${i + 1}pi`)
+     }
+     else{
+      pageIndicator.className = 'page-indicator'
+      pageIndicator.setAttribute('id', `${i + 1}pi`)
+     }
+    
+     pageIndicator.onclick = () => {
+        const index = i + 1
+        slideInView = index
+        highlightIndicator()
+        resetPosition(posX)
+     }
+
+     indicatorWrapper.appendChild(pageIndicator)
+     
+}
+  sliderParent.appendChild(indicatorWrapper)
+
+  const indicatorChildren = indicatorWrapper.children
 
 
   //stores the intial value of a touch event or mouse click
@@ -85,12 +103,10 @@ const buildSlider = (id) => {
   //
   let cardWidth = sliderChildren[0].offsetWidth
 
-  let xDown = null;
 
 
 
-  const mouseDownListener = (event) => {
-    event.preventDefault()
+  const mouseDownListener = (event) => {  
     //record inital X position of the mouse
 	 startX = event.clientX ? event.clientX : event.touches[0].clientX
 
@@ -101,22 +117,21 @@ const buildSlider = (id) => {
 
 
 
-
   slider.addEventListener('mousedown', mouseDownListener)
-
   
   
   const mouseUpListener = (event) => {
     
     //no longer clicking
 	  heldDown = false 
-    //resets slide to it's center at the center of the slide window
+    highlightIndicator()
+    //resets slide to it's center at the center of the slide window    
 	  resetPosition(posX)
     previous = null
   }
 
 document.addEventListener('mouseup', mouseUpListener)
-slider.addEventListener('touchend', mouseUpListener)
+slider.addEventListener('touchend', handleTouchEnd)
 
 
 const mouseMoveListener = (event) => {
@@ -125,31 +140,111 @@ const mouseMoveListener = (event) => {
   let current = event.clientX ? event.clientX : event.touches[0].clientX
   previous = previous === null ?  startX: previous;
 
-
   let distance = current - previous 
 
   if(heldDown) {
-    moveSlide(distance)
+    window.requestAnimationFrame(() => moveSlide(distance))
   }	
 	previous = current
 }
+
+let xDown = null;
+let yDown = null;
+let direction = null
+let dirEnd = false
+
+function handleTouchEnd(event){
+  xDown = null
+  yDown = null
+  direction = null
+  dirEnd = false
+  heldDown = false 
+  highlightIndicator()
+  //resets slide to it's center at the center of the slide window    
+  resetPosition(posX)
+  previous = null
+}
+
+function getTouches(event) {
+  return event.touches;
+}
+
+function handleTouchStart(event) {
+  const firstTouch = getTouches(event)[0];
+  heldDown = true
+  xDown = firstTouch.clientX;
+  yDown = firstTouch.clientY;
+  startX = xDown
+}
+
+function handleTouchMove(event) {
+
+    if (!xDown || !yDown) {
+      return;
+    }
+  
+    let xUp = event.touches[0].clientX;
+    let yUp = event.touches[0].clientY;
+  
+    let xDiff = xDown - xUp;
+    let yDiff = yDown - yUp;
+  
+    if(!dirEnd){
+      direction = Math.abs(xDiff) > Math.abs(yDiff) ? 'horizontal' : 'vertical'
+    }
+    console.log(direction)
+    if(direction === 'horizontal'){
+      if (event.cancelable) {
+        event.preventDefault();
+     }
+      
+      //the distance traveled since last mouseMove event trigger
+      let current = event.touches[0].clientX
+      previous = previous === null ?  startX: previous;
+      xDown = xUp
+    
+      let distance = current - previous 
+    
+      if(heldDown) {
+        window.requestAnimationFrame(() => moveSlide(distance))
+      }	
+      previous = current
+      dirEnd = true
+    } 
+  
+  // reset values //
+  //xDown = xUp;
+  //yDown = yDiff;
+}
+
+
 
 slider.addEventListener('mousemove', mouseMoveListener)
 //slider.addEventListener('touchmove', mouseMoveListener)
 
 for(let child of sliderChildren){
-    child.firstChild.addEventListener('touchmove', mouseMoveListener)
-    child.firstChild.addEventListener('touchstart', mouseDownListener)
+    child.firstChild.addEventListener('touchmove', handleTouchMove)
+    child.firstChild.addEventListener('touchstart', handleTouchStart)    
+}
+
+const highlightIndicator = () => {
+  for(let i = 0; i < indicatorChildren.length; i++){
+    if(i+1 === slideInView){
+      indicatorChildren[i].className ='page-indicator inview'
+    }
+    else{
+      indicatorChildren[i].className ='page-indicator'
+    }
+  }
 }
 
 const moveSlide = (distance) => {
-
   
     //direction the mouse was moved
     let direction = distance > 0 ? 'right': 'left'
     
     //change posX by the distance mouse/touch has moved
-		posX = posX + (distance)		
+		posX = Math.floor(posX + (distance))
   
 		if(direction === 'left'){		
     //if the slide has moved 25% of its width, then change the index of the slide that is inview to the next slide
@@ -195,7 +290,7 @@ const resetPosition = (currentPosition) => {
   */
   
   //spring constant
-	const k = 0.1
+	const k = 0.2
   //equilbrium point
 	const resetPos = (slideInView - 1) * sliderChildren[0].offsetWidth
   //velocity generated
@@ -203,15 +298,17 @@ const resetPosition = (currentPosition) => {
 	
   //var is used in order to recursively call request animation frame
 	var moveToEquilibrium = function() {
-		
+		if(heldDown) return
     //move the slide towards the equilibrium by the velocity generated
 		endPos -= dX
+    
     //recalculate velocity based on the slides new position
 		dX = k * (resetPos + endPos)
     //visually move the slides
 		for(let i = 0; i < sliderChildren.length; i++){
 			let card = sliderChildren[i]
 		card.style.transform = `translateX(${endPos}px)`
+    posX = endPos
 		//if the spring has reached the equilibrium point stop
 		if(endPos < -resetPos + 2 && endPos >  -resetPos - 2){
 			for(let i = 0; i < sliderChildren.length; i++){
@@ -231,17 +328,18 @@ const resetPosition = (currentPosition) => {
 
 //this needs to be extracted at some point
 const centerViewport = () => {
-  console.log('slider')
-  posX = -sliderChildren[0].offsetWidth * (slideInView - 1
+  cardWidth = sliderChildren[0].offsetWidth
+  posX = -cardWidth * (slideInView - 1
 )
   for(let i = 0; i < sliderChildren.length; i++){
     let card = sliderChildren[i]    
     card.style.transform = `translateX(${posX}px)`      
   }
 }
-
-window.onresize = centerViewport  
+window.addEventListener('window:resize', centerViewport)  
 }
+
+
 
 
 buildSlider('viewport')
